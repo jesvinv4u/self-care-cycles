@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+//import VideoCard from "@/components/VideoCard";
 import {
   Heart,
   ArrowLeft,
@@ -220,6 +221,11 @@ const BseCheck = () => {
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8 max-w-2xl">
         {/* Instructions */}
+        {/*
+           <div className="mb-8 animate-slide-up" style={{ animationDelay: "0ms" }}>
+            <VideoCard src="/videos/bse_tutorial.mp4" poster="/videos/bse_tutorial_poster.jpg" />
+           </div>
+        */}
         <div className="mb-8 p-4 rounded-xl bg-accent/10 border border-accent/20 animate-fade-in">
           <div className="flex items-start gap-3">
             <Info className="w-5 h-5 text-accent mt-0.5 shrink-0" />
