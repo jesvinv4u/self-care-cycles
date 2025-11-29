@@ -28,7 +28,7 @@ serve(async (req) => {
     // Get user profile
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("last_period_end, avg_cycle_days, reminder_offset_days, reminder_enabled")
+      .select("last_period_end, avg_cycle_days, reminder_offset_days, reminder_enabled, timezone")
       .eq("id", user_id)
       .single();
 
@@ -51,11 +51,13 @@ serve(async (req) => {
       );
     }
 
-    // Calculate next reminder time
+    // Calculate next reminder time at 9 AM in user's timezone
     const nextScheduledAt = computeNextReminder(
       new Date(profile.last_period_end).getTime(),
       profile.reminder_offset_days || 7,
-      profile.avg_cycle_days || 28
+      profile.avg_cycle_days || 28,
+      profile.timezone || "UTC",
+      9 // 9 AM local time
     );
 
     // Delete any existing unfired reminders for this user
@@ -104,18 +106,74 @@ function computeNextReminder(
   lastPeriodEnd: number,
   offsetDays: number,
   avgCycleDays: number = 28,
+  timezone: string = "UTC",
+  targetHour: number = 9, // 9 AM local time
   now: number = Date.now()
 ): number {
   const DAY_MS = 24 * 60 * 60 * 1000;
   const offsetMs = offsetDays * DAY_MS;
   const cycleMs = avgCycleDays * DAY_MS;
   
-  let next = lastPeriodEnd + offsetMs;
+  // Calculate the base reminder date (midnight UTC on the target day)
+  let baseDate = lastPeriodEnd + offsetMs;
   
-  if (next < now) {
-    const steps = Math.floor((now - next) / cycleMs) + 1;
-    next += steps * cycleMs;
+  // If base date is in the past, advance by cycle increments
+  if (baseDate < now) {
+    const steps = Math.floor((now - baseDate) / cycleMs) + 1;
+    baseDate += steps * cycleMs;
   }
   
-  return next;
+  // Convert to 9 AM in user's timezone
+  const targetDate = new Date(baseDate);
+  
+  // Get the date components in the user's timezone
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  
+  const parts = formatter.formatToParts(targetDate);
+  const year = parseInt(parts.find(p => p.type === "year")?.value || "2025");
+  const month = parseInt(parts.find(p => p.type === "month")?.value || "1") - 1;
+  const day = parseInt(parts.find(p => p.type === "day")?.value || "1");
+  
+  // Create a date string for 9 AM in the user's timezone
+  const localDateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}T${String(targetHour).padStart(2, "0")}:00:00`;
+  
+  // Get the UTC offset for the target timezone at this date
+  const testDate = new Date(localDateStr + "Z");
+  const utcFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    hour: "numeric",
+    hour12: false,
+  });
+  
+  // Calculate offset by comparing UTC time to local time
+  const localHour = parseInt(utcFormatter.format(testDate));
+  const utcHour = testDate.getUTCHours();
+  let offsetHours = localHour - utcHour;
+  
+  // Handle day boundary crossings
+  if (offsetHours > 12) offsetHours -= 24;
+  if (offsetHours < -12) offsetHours += 24;
+  
+  // Create the final UTC timestamp for 9 AM local time
+  const finalDate = new Date(Date.UTC(year, month, day, targetHour - offsetHours, 0, 0));
+  
+  // If this time has already passed today, check if we need to adjust
+  if (finalDate.getTime() < now) {
+    // Move to next cycle
+    return computeNextReminder(
+      lastPeriodEnd,
+      offsetDays,
+      avgCycleDays,
+      timezone,
+      targetHour,
+      finalDate.getTime() + DAY_MS
+    );
+  }
+  
+  return finalDate.getTime();
 }
