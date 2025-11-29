@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+/*import { useEffect, useRef, useState } from "react";
 import { Play, Pause, Volume2, VolumeX, Maximize } from "lucide-react";
 
 interface VideoCardProps {
@@ -83,7 +83,7 @@ export default function VideoCard({ src, poster, className = "" }: VideoCardProp
         />
 
         {/* Center Play Button (smooth) */}
-        {!isPlaying && (
+      /*  {!isPlaying && (
           <button
             aria-label="Play tutorial"
             onClick={(e) => {
@@ -98,12 +98,12 @@ export default function VideoCard({ src, poster, className = "" }: VideoCardProp
         )}
 
         {/* Top-left badge */}
-        <div className="absolute left-3 top-3 px-3 py-1 rounded-full bg-black/40 text-xs text-white/90">
+      /*  <div className="absolute left-3 top-3 px-3 py-1 rounded-full bg-black/40 text-xs text-white/90">
           Tutorial
         </div>
 
         {/* Bottom controls (fade-in) */}
-        <div
+      /*  <div
           className={`absolute left-0 right-0 bottom-0 px-3 py-2 bg-gradient-to-t from-black/60 to-transparent flex items-center justify-between gap-2 transition-opacity duration-200 ${
             showControls || isPlaying ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
@@ -133,8 +133,8 @@ export default function VideoCard({ src, poster, className = "" }: VideoCardProp
 
             <div className="text-xs text-white/80 ml-2">
               {/* basic time display (optional) */}
-              {/* You can add timeupdate listener to show current / duration if desired */}
-              {isPlaying ? "Playing" : "Paused"}
+        /*      {/* You can add timeupdate listener to show current / duration if desired */}
+        /*      {isPlaying ? "Playing" : "Paused"}
             </div>
           </div>
 
@@ -165,7 +165,7 @@ export default function VideoCard({ src, poster, className = "" }: VideoCardProp
       </div>
 
       {/* Caption below */}
-      <div className="p-3">
+   /*   <div className="p-3">
         <p className="text-sm font-medium text-foreground">How to perform your breast self-exam</p>
         <p className="text-xs text-muted-foreground mt-1">
           Short tutorial — watch the video and follow along with the checklist. If you see anything abnormal, contact a healthcare professional.
@@ -173,4 +173,4 @@ export default function VideoCard({ src, poster, className = "" }: VideoCardProp
       </div>
     </div>
   );
-}
+} */
