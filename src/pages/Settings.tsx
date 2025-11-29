@@ -94,6 +94,17 @@ const Settings = () => {
 
       if (error) throw error;
 
+      // Schedule reminder if enabled and last period end is set
+      if (reminderEnabled && lastPeriodEnd) {
+        try {
+          await supabase.functions.invoke("schedule-reminder", {
+            body: { user_id: user.id },
+          });
+        } catch (scheduleError) {
+          console.error("Error scheduling reminder:", scheduleError);
+        }
+      }
+
       toast({
         title: "Settings saved",
         description: "Your preferences have been updated successfully.",
