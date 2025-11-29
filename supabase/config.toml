@@ -1,1 +1,7 @@
 project_id = "gbebydlvqllafkpigvby"
+
+[functions.send-reminder-emails]
+verify_jwt = false
+
+[functions.schedule-reminder]
+verify_jwt = false
